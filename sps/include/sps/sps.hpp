@@ -26,8 +26,12 @@ namespace sps
                 std::make_shared<FirstEiThenPlaneIntegralStrategy>(),
             const PlaneCenterSelectionStrategy center_strategy = PlaneCenterSelectionStrategy::LastSelection);
 
+        /// Copy learned state and plane data without sharing mutable preference observations.
+        Optimizer(const Optimizer& other);
+
         void SubmitData(const Eigen::VectorXd& x_preferred, const std::vector<Eigen::VectorXd>& x_others);
         std::shared_ptr<const AbstractPlane> RetrieveSearchPlane() const;
+        unsigned GetNumPreferenceObservations() const;
 
         double GetCurrentPredictiveMean(const Eigen::VectorXd& params) const;
         double GetCurrentPredictiveVar(const Eigen::VectorXd& params) const;

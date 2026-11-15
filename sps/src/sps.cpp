@@ -28,6 +28,17 @@ sps::Optimizer::Optimizer(const unsigned                             num_dims,
     m_regressor = nullptr;
 }
 
+sps::Optimizer::Optimizer(const Optimizer& other)
+    : m_use_map_hyperparams(other.m_use_map_hyperparams), m_init_strategy(other.m_init_strategy),
+      m_construction_strategy(other.m_construction_strategy), m_center_strategy(other.m_center_strategy),
+      m_num_dims(other.m_num_dims), m_plane(std::make_shared<AbstractPlane>(*other.m_plane)),
+      m_regressor(other.m_regressor
+                      ? std::make_shared<sequential_line_search::PreferenceRegressor>(*other.m_regressor)
+                      : nullptr),
+      m_data(std::make_shared<sequential_line_search::PreferenceDataManager>(*other.m_data))
+{
+}
+
 void sps::Optimizer::SubmitData(const Eigen::VectorXd& x_preferred, const std::vector<Eigen::VectorXd>& x_others)
 {
     m_data->AddNewPoints(x_preferred, x_others, true, k_merge_threshold);
@@ -75,6 +86,8 @@ void sps::Optimizer::SubmitData(const Eigen::VectorXd& x_preferred, const std::v
 }
 
 std::shared_ptr<const sps::AbstractPlane> sps::Optimizer::RetrieveSearchPlane() const { return m_plane; }
+
+unsigned sps::Optimizer::GetNumPreferenceObservations() const { return static_cast<unsigned>(m_data->GetD().size()); }
 
 double sps::Optimizer::GetCurrentPredictiveMean(const Eigen::VectorXd& params) const
 {
